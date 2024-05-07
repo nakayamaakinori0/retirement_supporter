@@ -1,0 +1,17 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "test",
+  "steps": [
+    {
+      "file": "src/components/Quote.tsx",
+      "description": "ここで状態をセットする\n",
+      "line": 17
+    },
+    {
+      "file": "src/components/Quote.tsx",
+      "description": "\nborderWidth: 2でボックスの枠を表示できた",
+      "line": 31
+    }
+  ],
+  "ref": "issue/phase1"
+}
