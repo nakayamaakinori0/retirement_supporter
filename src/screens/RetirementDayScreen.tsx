@@ -1,10 +1,57 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 
 export default function RetirementDayScreen() {
   return (
-    <View>
-      <Text>RetirementDayScreen</Text>
+    <View style={styles.container}>
+      <Image
+        style={styles.image}
+        source={require('../../assets/hanamaru.png')}></Image>
+      <Text style={styles.congratulation}>
+        {`
+        退職おめでとう！！
+        よく頑張りました！！
+        `}
+      </Text>
+
+      <View style={styles.quoteContainer}>
+        <Text style={styles.meigen}>
+          過去ばかり振り向いていたのではダメだ。自分がこれまで何をして、これまでに誰だったのかを受け止めた上で、それを捨てればいい
+        </Text>
+        <Text style={styles.author}>by Steve Jobs</Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#F5FCF4',
+  },
+  image: {
+    width: 120,
+    height: 120 * 0.8673,
+    marginLeft: 10,
+    marginTop: 10,
+    alignSelf: 'flex-start',
+  },
+  congratulation: {
+    fontSize: 25,
+  },
+  quoteContainer: {
+    alignItems: 'center',
+    marginTop: 30,
+    paddingLeft: 30,
+    paddingRight: 30,
+  },
+  meigen: {fontSize: 20, fontFamily: 'Papyrus'},
+  author: {
+    marginTop: 15,
+    fontSize: 15,
+    alignSelf: 'flex-end',
+    fontFamily: 'Papyrus',
+    paddingRight: 6,
+  },
+});

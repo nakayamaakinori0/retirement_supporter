@@ -1,9 +1,13 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import {useModal} from '../hooks/useModal';
+import CalenderModal from './CalenderModal';
 
 export default function HamburgerButton() {
+  const {showModal} = useModal();
+  const onPress = () => showModal(() => <CalenderModal></CalenderModal>, {});
   return (
-    <TouchableOpacity style={styles.hamburgerMenu}>
+    <TouchableOpacity onPress={onPress} style={styles.hamburgerMenu}>
       {[...Array(3)].map((_, index) => {
         return (
           <View key={`bar_${index}`} style={styles.hamburgerMenuBar}></View>

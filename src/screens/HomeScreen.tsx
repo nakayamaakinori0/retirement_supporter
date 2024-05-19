@@ -1,16 +1,32 @@
 import React, {useState, useEffect} from 'react';
-import dayjs from 'dayjs';
-import {View, Text, Alert, StyleSheet, Button} from 'react-native';
+import dayjs from '../libs/day';
+import {View, Text, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
 import Quote from '../components/Quote';
+import {useCalender} from '../hooks/useCalender';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen: React.FC<{}> = () => {
-  const [remainingWeekday, setRemainingWeekdays] = useState<number>(0);
-  const retirementDate: string = '2024-06-14';
+  const [remainingWeekday, setRemainingWeekdays] = useState<number | null>(
+    null,
+  );
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const {retirementDate, setRetirementDate} = useCalender();
 
+  // deviceStorageの中に保存されている退職日を取り出して設定する
+  useEffect(() => {
+    const func = async () => {
+      const testRetirementDate = await AsyncStorage.getItem('retirementDate');
+      if (testRetirementDate) {
+        setRetirementDate(testRetirementDate);
+      }
+    };
+    func();
+  }, []);
+
+  // 退職日から現在の日時と比較して残り何営業日か算出して設定する
   useEffect(() => {
     const calculateRemainingWeekdays: () => void = () => {
       let currentDate: dayjs.Dayjs = dayjs();
@@ -25,7 +41,14 @@ const HomeScreen: React.FC<{}> = () => {
       setRemainingWeekdays(count);
     };
     calculateRemainingWeekdays();
-  }, []);
+  }, [retirementDate]);
+
+  // 0日になったらretirementDateにredirectする
+  useEffect(() => {
+    if (retirementDate !== null && remainingWeekday === 0) {
+      navigation.navigate('RetirementDay');
+    }
+  }, [remainingWeekday]);
 
   return (
     <View style={styles.container}>
@@ -33,12 +56,6 @@ const HomeScreen: React.FC<{}> = () => {
       <Text style={styles.remainingWeekDay}>{remainingWeekday}</Text>
       <Text style={styles.subTitle}>日</Text>
       <Quote></Quote>
-      <Button
-        title="Go to RetirementDay"
-        onPress={() => navigation.navigate('RetirementDay')}></Button>
-      <Button
-        title="Go to FontStyles"
-        onPress={() => navigation.navigate('FontStyles')}></Button>
     </View>
   );
 };
