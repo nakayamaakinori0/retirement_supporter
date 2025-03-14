@@ -131,7 +131,7 @@ export function Modal({
   useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: 1,
-      duration: 50,
+      duration: 70,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
@@ -140,7 +140,7 @@ export function Modal({
   const close = useCallback((e: any) => {
     Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 50,
+      duration: 70,
       easing: Easing.in(Easing.cubic),
       useNativeDriver: true,
     }).start(() => {
