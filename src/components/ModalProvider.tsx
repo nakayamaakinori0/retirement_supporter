@@ -4,15 +4,27 @@ import React, {
   useMemo,
   useRef,
   useCallback,
+  useEffect,
 } from 'react';
-
+import {
+  Animated,
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Easing,
+  Button,
+  ViewStyle,
+} from 'react-native';
 import isOuterAreaClick from '../libs/isOuterAreaClick';
-
 import {useModal} from '../hooks/useModal';
-import {View, Button, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 
 export const ModalContext = createContext<{
-  showModal: (modalComponent: React.FC, modalProps?: object) => void;
+  showModal: (
+    modalComponent: React.FC<any>,
+    modalProps?: object,
+    position?: 'upper' | 'center' | 'lower',
+    from?: 'upper' | 'center' | 'lower'
+  ) => void;
   hideModal: () => void;
 }>({
   showModal: () => null,
@@ -49,17 +61,22 @@ export function ModalProvider({
   const [modals, dispatch] = useReducer(reducer, initialValue);
 
   const showModal = useCallback(
-    (modalComponent: React.FC, modalProps: object = {}) => {
+    (
+      modalComponent: React.FC,
+      modalProps: object = {},
+      position: 'upper' | 'center' | 'lower' = 'center',
+      from: 'upper' | 'center' | 'lower' = 'center'
+    ) => {
       dispatch({
         type: 'add',
         value: {
           component: React.createElement(modalComponent),
-          props: modalProps,
+          props: {...modalProps, position, from},
           key: `modal-${generateId()}`,
         },
       });
     },
-    [],
+    []
   );
 
   const hideModal = useCallback(() => {
@@ -71,7 +88,7 @@ export function ModalProvider({
       showModal,
       hideModal,
     }),
-    [showModal, hideModal],
+    [showModal, hideModal]
   );
 
   return (
@@ -85,6 +102,7 @@ export function ModalProvider({
     </ModalContext.Provider>
   );
 }
+
 type ModalElement = {
   component: React.ReactNode;
   props: object;
@@ -96,20 +114,41 @@ export function Modal({
   outerAreaClose = true,
   onClose = () => null,
   children,
+  position = 'center',
+  from = 'center'
 }: {
   closeButton?: boolean;
   outerAreaClose?: boolean;
   onClose?: (e: any) => void;
   children?: React.ReactNode;
+  position?: 'upper' | 'center' | 'lower';
+  from?: 'upper' | 'center' | 'lower';
 }): JSX.Element {
   const viewRef = useRef<View>(null);
   const {hideModal} = useModal();
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 50,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [slideAnim]);
 
   const close = useCallback((e: any) => {
-    if (onClose && typeof onClose === 'function') {
-      onClose(e);
-    }
-    hideModal();
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 50,
+      easing: Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      if (onClose && typeof onClose === 'function') {
+        onClose(e);
+      }
+      hideModal();
+    });
   }, []);
 
   const onScreenClick = useCallback(
@@ -120,36 +159,60 @@ export function Modal({
         close(e);
       }
     },
-    [outerAreaClose, viewRef],
+    [outerAreaClose, viewRef]
   );
+
+  const getFlexPosition = (): ViewStyle['justifyContent'] => {
+    switch (position) {
+      case 'upper':
+        return 'flex-start';
+      case 'lower':
+        return 'flex-end';
+      default:
+        return 'center';
+    }
+  };
+
+  const getSlideTransform = () => {
+    const translateY = slideAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: from === 'upper' ? [-1000, 0] : from === 'lower' ? [1000, 0] : [0, 0],
+    });
+
+    return {
+      transform: [{translateY}],
+    };
+  };
+
+  const styles = StyleSheet.create({
+    modal: {
+      flex: 1,
+      justifyContent: getFlexPosition(),
+      alignItems: 'center',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 1000,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+      ...getSlideTransform(),
+    },
+    closeButton: {},
+  });
 
   return (
     <TouchableWithoutFeedback onPress={onScreenClick}>
       <View style={styles.modal}>
-        <View ref={viewRef} style={styles.modalContent}>
+        <Animated.View ref={viewRef} style={styles.modalContent}>
           <View style={styles.closeButton}>
-            {closeButton && <Button title="X" onPress={close}></Button>}
+            {closeButton && <Button title="X" onPress={close} />}
           </View>
           <View>{children}</View>
-        </View>
+        </Animated.View>
       </View>
     </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  modal: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    zIndex: 1000,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {},
-  closeButton: {},
-});

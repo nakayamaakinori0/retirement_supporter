@@ -5,7 +5,8 @@ import CalenderModal from './CalenderModal';
 
 export default function HamburgerButton() {
   const {showModal} = useModal();
-  const onPress = () => showModal(() => <CalenderModal></CalenderModal>, {});
+  const onPress = () =>
+    showModal(() => <CalenderModal></CalenderModal>, {}, 'upper', 'upper');
   return (
     <TouchableOpacity onPress={onPress} style={styles.hamburgerMenu}>
       {[...Array(3)].map((_, index) => {
