@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import dayjs from '../libs/day';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
@@ -8,6 +8,8 @@ import Quote from '../components/Quote';
 import {useCalender} from '../hooks/useCalender';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Partner from '../components/Partner';
+import {useModal} from '../hooks/useModal';
+import CalenderModal from '../components/CalenderModal';
 
 const HomeScreen: React.FC<{}> = () => {
   const [remainingWeekday, setRemainingWeekdays] = useState<number | null>(
@@ -15,6 +17,11 @@ const HomeScreen: React.FC<{}> = () => {
   );
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const {retirementDate, setRetirementDate} = useCalender();
+
+  const {showModal} = useModal();
+  const onPress = () =>
+    showModal(() => <CalenderModal></CalenderModal>, {}, 'upper', 'upper');
+
 
   // deviceStorageの中に保存されている退職日を取り出して設定する;
   useEffect(() => {
@@ -58,9 +65,11 @@ const HomeScreen: React.FC<{}> = () => {
         <View style={styles.titleContainer}>
           <Text style={styles.title}>退職まであと</Text>
         </View>
-        <Text style={styles.remainingWeekDay}>
-          {remainingWeekday === null ? 'x' : remainingWeekday}
-        </Text>
+        <TouchableOpacity onPress={onPress} >
+          <Text style={styles.remainingWeekDay}>
+            {remainingWeekday === null ? 'x' : remainingWeekday}
+          </Text>
+        </TouchableOpacity>
         <View style={styles.subTitleContainer}>
           <Text style={styles.subTitle}>日</Text>
         </View>
