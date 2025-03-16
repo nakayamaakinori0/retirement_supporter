@@ -15,7 +15,7 @@ export default function RetirementDayScreen() {
       </Text>
 
       <View style={styles.quoteContainer}>
-        <Text style={styles.meigen}>
+        <Text style={styles.quote}>
           過去ばかり振り向いていたのではダメだ。自分がこれまで何をして、これまでに誰だったのかを受け止めた上で、それを捨てればいい
         </Text>
         <Text style={styles.author}>by Steve Jobs</Text>
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     paddingLeft: 30,
     paddingRight: 30,
   },
-  meigen: {fontSize: 20, fontFamily: 'Papyrus'},
+  quote: {fontSize: 20, fontFamily: 'Papyrus'},
   author: {
     marginTop: 15,
     fontSize: 15,
