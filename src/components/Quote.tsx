@@ -33,26 +33,15 @@ export default function Quote() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.quoteContainer}>
-        <Text style={styles.meigen}>{quote?.meigen}</Text>
-        <Text style={styles.author}>{`by ${quote?.auther}`}</Text>
-      </View>
+    <View>
+      <Text style={styles.quote}>{quote?.meigen}</Text>
+      <Text style={styles.author}>{`by ${quote?.auther}`}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 25,
-    width: 350,
-  },
-  quoteContainer: {
-    alignItems: 'center',
-    paddingLeft: 30,
-    paddingRight: 30,
-  },
-  meigen: {fontSize: 20, fontFamily: 'Papyrus'},
+  quote: {fontSize: 20, fontFamily: 'Papyrus'},
   author: {
     marginTop: 25,
     fontSize: 15,

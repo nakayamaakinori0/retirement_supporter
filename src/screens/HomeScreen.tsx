@@ -53,13 +53,21 @@ const HomeScreen: React.FC<{}> = () => {
   }, [remainingWeekday]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>退職まであと</Text>
-      <Text style={styles.remainingWeekDay}>
-        {remainingWeekday === null ? 'x' : remainingWeekday}
-      </Text>
-      <Text style={styles.subTitle}>日</Text>
-      <Quote></Quote>
+    <View style={styles.rootContainer}>
+      <View style={styles.container}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>退職まであと</Text>
+        </View>
+        <Text style={styles.remainingWeekDay}>
+          {remainingWeekday === null ? 'x' : remainingWeekday}
+        </Text>
+        <View style={styles.subTitleContainer}>
+          <Text style={styles.subTitle}>日</Text>
+        </View>
+      </View>
+      <View style={styles.quoteContainer}>
+        <Quote></Quote>
+      </View>
       <View style={styles.partnerContainer}>
         <Partner></Partner>
       </View>
@@ -68,25 +76,42 @@ const HomeScreen: React.FC<{}> = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  rootContainer: {
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#F5FCF4',
   },
-  title: {
+  container: {
     marginTop: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '40%',
+  },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
+  },
+  title: {
     fontSize: 25,
-    marginRight: 40,
   },
   remainingWeekDay: {
     fontSize: 100,
+    lineHeight: 110,
     color: '#000',
     fontWeight: 'bold',
+    marginBottom: -10,
+  },
+  subTitleContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
   },
   subTitle: {
     fontSize: 25,
-    marginLeft: 120,
-    marginTop: -10,
+    lineHeight: 25,
+  },
+  quoteContainer: {
+    width: '80%',
+    marginTop: 30,
   },
   partnerContainer: {
     position: 'absolute',
