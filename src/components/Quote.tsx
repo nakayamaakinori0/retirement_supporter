@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {QuoteType} from '../types';
+import {QuoteType} from '@/src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import dayjs from '../libs/day';
+import dayjs from '@/src/libs/day';
 
 export default function Quote() {
   const [quote, setQuote] = useState<QuoteType>();

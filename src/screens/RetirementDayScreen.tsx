@@ -6,7 +6,7 @@ export default function RetirementDayScreen() {
     <View style={styles.container}>
       <Image
         style={styles.image}
-        source={require('../../assets/hanamaru.png')}></Image>
+        source={require('@/assets/hanamaru.png')}></Image>
       <Text style={styles.congratulation}>
         {`
         退職おめでとう！！

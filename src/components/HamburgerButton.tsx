@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
-import {useModal} from '../hooks/useModal';
-import CalenderModal from './CalenderModal';
+import {useModal} from '@/src/hooks/useModal';
+import CalenderModal from '@/src/components/CalenderModal';
 
 export default function HamburgerButton() {
   const {showModal} = useModal();

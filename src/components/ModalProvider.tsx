@@ -15,8 +15,8 @@ import {
   Button,
   ViewStyle,
 } from 'react-native';
-import isOuterAreaClick from '../libs/isOuterAreaClick';
-import {useModal} from '../hooks/useModal';
+import isOuterAreaClick from '@/src/libs/isOuterAreaClick';
+import {useModal} from '@/src/hooks/useModal';
 
 export const ModalContext = createContext<{
   showModal: (

@@ -1,15 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import dayjs from '../libs/day';
+import dayjs from '@/src/libs/day';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RootStackParamList} from '../types';
-import Quote from '../components/Quote';
-import {useCalender} from '../hooks/useCalender';
+import {RootStackParamList} from '@/src/types';
+import Quote from '@/src/components/Quote';
+import {useCalender} from '@/src/hooks/useCalender';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Partner from '../components/Partner';
-import {useModal} from '../hooks/useModal';
-import CalenderModal from '../components/CalenderModal';
+import Partner from '@/src/components/Partner';
+import {useModal} from '@/src/hooks/useModal';
+import CalenderModal from '@/src/components/CalenderModal';
 
 const HomeScreen: React.FC<{}> = () => {
   const [remainingWeekday, setRemainingWeekdays] = useState<number | null>(
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCF4',
   },
   container: {
-    marginTop: 50,
+    marginTop: 60,
     alignItems: 'center',
     justifyContent: 'center',
     width: '40%',
@@ -104,11 +104,11 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   remainingWeekDay: {
+  marginTop: 20,
     fontSize: 100,
     lineHeight: 110,
     color: '#000',
     fontWeight: 'bold',
-    marginBottom: -10,
   },
   subTitleContainer: {
     width: '100%',

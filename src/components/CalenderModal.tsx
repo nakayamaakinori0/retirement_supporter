@@ -1,8 +1,8 @@
 import React from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
 import {Calendar, DateData} from 'react-native-calendars';
-import {useCalender} from '../hooks/useCalender';
-import dayjs from '../libs/day';
+import {useCalender} from '@/src/hooks/useCalender';
+import dayjs from '@/src/libs/day';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CalenderModal() {
