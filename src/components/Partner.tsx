@@ -1,17 +1,18 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet} from 'react-native';
+import Balloon from '@/src/components/Balloon';
+import {Animated} from 'react-native';
+import {partnerEncourageTexts} from '@/src/config';
 
-function Partner() {
-  const dogImages = useMemo(
-    () => [
+function Partner({showEncourage}: {showEncourage: boolean}) {
+
+  const dogImages = [
     require('@/assets/101_dog/101_dog1.png'),
     require('@/assets/101_dog/101_dog2.png'),
     require('@/assets/101_dog/101_dog3.png'),
     require('@/assets/101_dog/101_dog4.png'),
     require('@/assets/101_dog/101_dog5.png'),
-    ],
-    [],
-  );
+  ];
 
   const [currentImage, setCurrentImage] = useState(dogImages[0]);
   const imageIndexRef = useRef(0);
@@ -44,19 +45,95 @@ function Partner() {
     };
   }, [dogImages]);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (showEncourage) {
+      setIsVisible(true);
+      Animated.timing(fadeAnim, {
+        toValue: showEncourage ? 1 : 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(finished => {
+        if (finished) {
+          setIsVisible(false);
+        }
+      });
+    }
+  }, [showEncourage, fadeAnim]);
+
+  const encourageText = useMemo(() => {
+    return partnerEncourageTexts[
+      Math.floor(Math.random() * partnerEncourageTexts.length)
+    ];
+  }, [isVisible]);
+
   return (
     <View style={styles.container}>
-      <Image style={styles.image} source={currentImage} />
+      {isVisible && (
+        <Animated.View
+          style={{
+            flex: 1,
+            padding: 50,
+            opacity: fadeAnim,
+            ...styles.encourageWrapper,
+          }}>
+          <Balloon
+            style={{
+              backgroundColor: '#E4CCFF',
+              shadowSize: 4,
+              shadowColor: '#000',
+              borderWidth: 2,
+              borderColor: '#ba7eff',
+              pickSize: 35,
+              pickRadius: 15,
+              pickThin: 0.5,
+              pickLeft: 190,
+            }}>
+            <Text style={{fontSize: 20}}>{encourageText}</Text>
+          </Balloon>
+        </Animated.View>
+      )}
+      <View style={styles.partnerContainer}>
+        <Image style={styles.partnerImage} source={currentImage} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    borderWidth: 1,
+    position: 'relative',
+  },
+  encourageWrapper: {
+    position: 'absolute',
+    top: -280,
+    left: -210,
+    zIndex: 100,
+  },
+  encourageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    backgroundColor: '#E4CCFF',
+    width: 250,
+    height: 130,
+    borderRadius: 10,
+  },
+  encourageText: {},
+  partnerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  image: {
+  partnerImage: {
     resizeMode: 'contain',
   },
 });

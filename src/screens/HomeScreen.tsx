@@ -22,6 +22,7 @@ const HomeScreen: React.FC<{}> = () => {
   const onPress = () =>
     showModal(() => <CalenderModal></CalenderModal>, {}, 'upper', 'upper');
 
+  const [showEncourage, setShowEncourage] = useState<boolean>(false);
 
   // deviceStorageの中に保存されている退職日を取り出して設定する;
   useEffect(() => {
@@ -59,13 +60,19 @@ const HomeScreen: React.FC<{}> = () => {
     }
   }, [remainingWeekday]);
 
+  const pressHandler = () => {
+    if (showEncourage) return;
+    setShowEncourage(true);
+    setTimeout(() => setShowEncourage(false), 2000);
+  };
+
   return (
     <View style={styles.rootContainer}>
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>退職まであと</Text>
         </View>
-        <TouchableOpacity onPress={onPress} >
+        <TouchableOpacity onPress={onPress}>
           <Text style={styles.remainingWeekDay}>
             {remainingWeekday === null ? 'x' : remainingWeekday}
           </Text>
@@ -75,10 +82,12 @@ const HomeScreen: React.FC<{}> = () => {
         </View>
       </View>
       <View style={styles.quoteContainer}>
-        <Quote></Quote>
+        <TouchableOpacity onPress={pressHandler}>
+          <Quote />
+        </TouchableOpacity>
       </View>
       <View style={styles.partnerContainer}>
-        <Partner></Partner>
+        <Partner showEncourage={showEncourage}></Partner>
       </View>
     </View>
   );
@@ -104,7 +113,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   remainingWeekDay: {
-  marginTop: 20,
+    marginTop: 20,
     fontSize: 100,
     lineHeight: 110,
     color: '#000',
