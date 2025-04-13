@@ -97,7 +97,7 @@ function Partner({showEncourage}: {showEncourage: boolean}) {
               pickThin: 0.5,
               pickLeft: 190,
             }}>
-            <Text style={{fontSize: 20}}>{encourageText}</Text>
+            <Text style={{fontSize: 20, fontFamily: 'Papyrus'}}>{encourageText}</Text>
           </Balloon>
         </Animated.View>
       )}
@@ -110,7 +110,6 @@ function Partner({showEncourage}: {showEncourage: boolean}) {
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 1,
     position: 'relative',
   },
   encourageWrapper: {

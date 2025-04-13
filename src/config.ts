@@ -15,4 +15,5 @@ export const partnerEncourageTexts = [
   'ぼちぼち行くにゃー',
   '深呼吸するにゃー',
   '落ち着いていくにゃー',
+  'どうでもいいにゃー',
 ];
