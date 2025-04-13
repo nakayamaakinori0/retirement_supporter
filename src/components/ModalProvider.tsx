@@ -23,7 +23,7 @@ export const ModalContext = createContext<{
     modalComponent: React.FC<any>,
     modalProps?: object,
     position?: 'upper' | 'center' | 'lower',
-    from?: 'upper' | 'center' | 'lower'
+    from?: 'upper' | 'center' | 'lower',
   ) => void;
   hideModal: () => void;
 }>({
@@ -65,7 +65,7 @@ export function ModalProvider({
       modalComponent: React.FC,
       modalProps: object = {},
       position: 'upper' | 'center' | 'lower' = 'center',
-      from: 'upper' | 'center' | 'lower' = 'center'
+      from: 'upper' | 'center' | 'lower' = 'center',
     ) => {
       dispatch({
         type: 'add',
@@ -76,7 +76,7 @@ export function ModalProvider({
         },
       });
     },
-    []
+    [],
   );
 
   const hideModal = useCallback(() => {
@@ -88,7 +88,7 @@ export function ModalProvider({
       showModal,
       hideModal,
     }),
-    [showModal, hideModal]
+    [showModal, hideModal],
   );
 
   return (
@@ -115,7 +115,7 @@ export function Modal({
   onClose = () => null,
   children,
   position = 'center',
-  from = 'center'
+  from = 'center',
 }: {
   closeButton?: boolean;
   outerAreaClose?: boolean;
@@ -131,7 +131,7 @@ export function Modal({
   useEffect(() => {
     Animated.timing(slideAnim, {
       toValue: 1,
-      duration: 70,
+      duration: 400,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
@@ -140,7 +140,7 @@ export function Modal({
   const close = useCallback((e: any) => {
     Animated.timing(slideAnim, {
       toValue: 0,
-      duration: 70,
+      duration: 400,
       easing: Easing.in(Easing.cubic),
       useNativeDriver: true,
     }).start(() => {
@@ -159,7 +159,7 @@ export function Modal({
         close(e);
       }
     },
-    [outerAreaClose, viewRef]
+    [outerAreaClose, viewRef],
   );
 
   const getFlexPosition = (): ViewStyle['justifyContent'] => {
@@ -176,7 +176,8 @@ export function Modal({
   const getSlideTransform = () => {
     const translateY = slideAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: from === 'upper' ? [-1000, 0] : from === 'lower' ? [1000, 0] : [0, 0],
+      outputRange:
+        from === 'upper' ? [-1000, 0] : from === 'lower' ? [1000, 0] : [0, 0],
     });
 
     return {
