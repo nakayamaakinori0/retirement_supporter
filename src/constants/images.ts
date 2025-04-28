@@ -1,7 +1,7 @@
-export const dogImages = [
-  require('@/assets/101_dog/101_dog1.png'),
-  require('@/assets/101_dog/101_dog2.png'),
-  require('@/assets/101_dog/101_dog3.png'),
-  require('@/assets/101_dog/101_dog4.png'),
-  require('@/assets/101_dog/101_dog5.png'),
+export const catImages = [
+  require('@/assets/cats/cat_1.png'),
+  require('@/assets/cats/cat_2.png'),
+  require('@/assets/cats/cat_3.png'),
+  require('@/assets/cats/cat_4.png'),
+  require('@/assets/cats/cat_5.png'),
 ] as const;

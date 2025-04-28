@@ -3,12 +3,14 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import Balloon from '@/src/components/Balloon';
 import {Animated} from 'react-native';
 import {partnerEncourageTexts} from '@/src/config';
-import {dogImages} from '@/src/constants/images';
+import {catImages} from '@/src/constants/images';
 
 
 function Partner({showEncourage}: {showEncourage: boolean}) {
 
-  const [currentImage, setCurrentImage] = useState(dogImages[0]);
+  const partnerImages = catImages;
+
+  const [currentImage, setCurrentImage] = useState(partnerImages[0]);
   const imageIndexRef = useRef(0);
   const frameCountRef = useRef(0);
   const timerRef = useRef(0);
@@ -23,8 +25,8 @@ function Partner({showEncourage}: {showEncourage: boolean}) {
       // フレームカウントが遅延値に達したら画像を切り替え
       if (frameCountRef.current >= FRAME_DELAY) {
         frameCountRef.current = 0;
-        imageIndexRef.current = (imageIndexRef.current + 1) % dogImages.length;
-        setCurrentImage(dogImages[imageIndexRef.current]);
+        imageIndexRef.current = (imageIndexRef.current + 1) % partnerImages.length;
+        setCurrentImage(partnerImages[imageIndexRef.current]);
       }
 
       timerRef.current = requestAnimationFrame(switchImage);
@@ -37,7 +39,7 @@ function Partner({showEncourage}: {showEncourage: boolean}) {
         cancelAnimationFrame(timerRef.current);
       }
     };
-  }, [dogImages]);
+  }, [partnerImages]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isVisible, setIsVisible] = useState(false);
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
   },
   encourageWrapper: {
     position: 'absolute',
-    top: -280,
+    top: -260,
     left: -210,
     zIndex: 100,
   },
@@ -127,6 +129,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   partnerImage: {
+    width: 100,
+    height: 100,
     resizeMode: 'contain',
   },
 });
