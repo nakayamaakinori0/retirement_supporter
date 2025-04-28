@@ -3,16 +3,10 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import Balloon from '@/src/components/Balloon';
 import {Animated} from 'react-native';
 import {partnerEncourageTexts} from '@/src/config';
+import {dogImages} from '@/src/constants/images';
+
 
 function Partner({showEncourage}: {showEncourage: boolean}) {
-
-  const dogImages = [
-    require('@/assets/101_dog/101_dog1.png'),
-    require('@/assets/101_dog/101_dog2.png'),
-    require('@/assets/101_dog/101_dog3.png'),
-    require('@/assets/101_dog/101_dog4.png'),
-    require('@/assets/101_dog/101_dog5.png'),
-  ];
 
   const [currentImage, setCurrentImage] = useState(dogImages[0]);
   const imageIndexRef = useRef(0);
