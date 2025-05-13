@@ -66,7 +66,7 @@ const Balloon = ({children, style = {}}) => {
       borderLeftColor: 'transparent',
       bottom: -(pickSize + borderWidth * 2),
       left: pickLeft - borderWidth * 2,
-      borderWidth: pickSize + borderWidth * 2 ,
+      borderWidth: pickSize + borderWidth * 2,
       borderRadius: pickRadius,
       shadowColor: shadowColor,
       shadowOffset: {
@@ -83,9 +83,7 @@ const Balloon = ({children, style = {}}) => {
   return (
     <View style={styles.balloonContainer}>
       <View style={styles.balloon}>
-        <View>
-          {children}
-        </View>
+        <View>{children}</View>
       </View>
       <View style={styles.pointer} />
       <View style={styles.pointerBorder} />
