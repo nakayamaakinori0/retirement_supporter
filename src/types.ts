@@ -1,7 +1,11 @@
 export type RootStackParamList = {
-  Home: undefined;
+  Main: undefined;
   RetirementDay: undefined;
-  FontStylesEnglish: undefined;
+};
+
+export type TabParamList = {
+  Home: undefined;
+  FontStyles: undefined;
 };
 
 export type QuoteType = {
