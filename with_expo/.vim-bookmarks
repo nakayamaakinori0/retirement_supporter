@@ -1,0 +1,3 @@
+let l:bm_file_version = 1
+let l:bm_sessions = {'default': {'/Users/nakayamaakinori/dev/retirementSupporter/with_expo/src/screens/FormRetirementLetterScreen.tsx': [{'sign_idx': 9500, 'line_nr': 93, 'content': '        />'},{'sign_idx': 9502, 'line_nr': 100, 'content': '          placeholder="山田太郎"'},],}}
+let l:bm_current_session = 'default'
