@@ -16,6 +16,13 @@ export default function RootLayout() {
               headerBackTitle: "戻る",
             }}
           />
+          <Stack.Screen
+            name="form-retirement-letter-confirm"
+            options={{
+              title: "入力内容の確認",
+              headerBackTitle: "戻る",
+            }}
+          />
         </Stack>
       </ModalProvider>
     </RetirementDateProvider>
