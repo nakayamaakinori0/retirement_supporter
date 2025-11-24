@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import { generateRetirementLetterHTML } from '../src/libs/generateRetirementLetterPDF';
 
 export default function ConfirmScreen() {
   const router = useRouter();
@@ -26,9 +29,37 @@ export default function ConfirmScreen() {
     router.back();
   };
 
-  const handleGenerate = () => {
-    // TODO: PDF生成処理
-    console.log('PDF生成');
+  const handleGenerate = async () => {
+    try {
+      // 外部テンプレートを使用してHTMLを生成
+      const html = generateRetirementLetterHTML({
+        formType: String(formType),
+        submissionDate: String(submissionDate),
+        companyName: String(companyName),
+        employerName: String(employerName),
+        departmentName: String(departmentName),
+        employeeName: String(employeeName),
+        retirementDate: String(retirementDate),
+      });
+
+      // HTMLからPDFを生成
+      const { uri } = await Print.printToFileAsync({ html });
+
+      // 共有可能かチェック
+      const isSharingAvailable = await Sharing.isAvailableAsync();
+
+      if (isSharingAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: '退職届を共有',
+          UTI: 'com.adobe.pdf',
+        });
+      } else {
+        console.log('共有機能が利用できません');
+      }
+    } catch (error) {
+      console.error('PDF生成エラー:', error);
+    }
   };
 
   return (
