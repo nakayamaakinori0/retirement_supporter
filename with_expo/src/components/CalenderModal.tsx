@@ -1,31 +1,37 @@
-import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import { Calendar, DateData } from 'react-native-calendars';
-import { useContext } from 'react';
-import { RetirementContext } from '@/components/RetirementProvider';
-import dayjs from '../libs/day';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from "react";
+import { View, StyleSheet, Dimensions } from "react-native";
+import { Calendar, DateData } from "react-native-calendars";
 
-export default function CalenderModal() {
-  const { retirementDate, setRetirementDate } = useContext(RetirementContext);
-  const now = dayjs();
-  
+interface CalenderModalProps {
+  onDayPress: (day: DateData) => void;
+  selectedDate: string;
+  minDate?: string;
+}
+
+export default function CalenderModal({
+  onDayPress,
+  selectedDate,
+  minDate,
+}: CalenderModalProps) {
+  const [localSelectedDate, setLocalSelectedDate] = useState(selectedDate);
+
+  const handleDayPress = (day: DateData) => {
+    setLocalSelectedDate(day.dateString);
+    onDayPress(day);
+  };
+
   return (
     <View style={styles.calenderModal}>
       <Calendar
-        testID="calendar"
         style={styles.calender}
-        onDayPress={(day: DateData) => {
-          if (now.isBefore(dayjs(day.dateString))) {
-            setRetirementDate(day.dateString);
-            AsyncStorage.setItem('retirementDate', day.dateString);
-          }
-        }}
+        onDayPress={handleDayPress}
+        minDate={minDate}
+        disableAllTouchEventsForDisabledDays={true}
         markedDates={{
-          [retirementDate ? retirementDate?.toString() : '']: {
+          [localSelectedDate]: {
             selected: true,
             disableTouchEvent: true,
-            selectedColor: 'orange',
+            selectedColor: "orange",
           },
         }}
       />
@@ -35,18 +41,18 @@ export default function CalenderModal() {
 
 const styles = StyleSheet.create({
   calenderModal: {
-    backgroundColor: '#F5FCF4',
-    width: Dimensions.get('window').width,
+    backgroundColor: "#F5FCF4",
+    width: Dimensions.get("window").width,
     height: 450,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 10,
   },
   calender: {
-    backgroundColor: '#F5FCF4',
+    backgroundColor: "#F5FCF4",
     width: 350,
     borderRadius: 10,
-    position: 'absolute',
+    position: "absolute",
     top: -150,
     left: -175,
   },

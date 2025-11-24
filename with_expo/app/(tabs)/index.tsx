@@ -1,23 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import dayjs from "../../src/libs/day";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import Quote from "../../src/components/Quote";
-import { useCalender } from "../../src/hooks/useCalender";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Partner from "../../src/components/Partner";
 import { useModal } from "../../src/hooks/useModal";
 import CalenderModal from "../../src/components/CalenderModal";
+import { RetirementDateContext } from "../../src/components/RetirementDateProvider";
+import { DateData } from "react-native-calendars";
 
 export default function HomeScreen() {
   const [remainingWeekday, setRemainingWeekdays] = useState<number | null>(
-    null,
+    null
   );
-  const { retirementDate, setRetirementDate } = useCalender();
+  const { retirementDate, setRetirementDate } = useContext(
+    RetirementDateContext
+  );
 
   const { showModal } = useModal();
+  const now = dayjs();
+  const today = now.format("YYYY-MM-DD");
+  const handleOnDayPress = (day: DateData) => {
+    setRetirementDate(day.dateString);
+    AsyncStorage.setItem("retirementDate", day.dateString);
+  };
   const handleOpenCalender = () =>
-    showModal(() => <CalenderModal />, {}, "upper", "upper");
+    showModal(
+      () => (
+        <CalenderModal
+          onDayPress={handleOnDayPress}
+          selectedDate={retirementDate}
+          minDate={today}
+        />
+      ),
+      {},
+      "upper",
+      "upper"
+    );
 
   const [showEncourage, setShowEncourage] = useState<boolean>(false);
 
@@ -134,4 +154,3 @@ const styles = StyleSheet.create({
     right: 16,
   },
 });
-
