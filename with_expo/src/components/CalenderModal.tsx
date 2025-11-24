@@ -16,8 +16,14 @@ export default function CalenderModal({
   const [localSelectedDate, setLocalSelectedDate] = useState(selectedDate);
 
   const handleDayPress = (day: DateData) => {
-    setLocalSelectedDate(day.dateString);
-    onDayPress(day);
+    // 選択済みの日付をタップした場合はクリア
+    if (localSelectedDate === day.dateString) {
+      setLocalSelectedDate('');
+      onDayPress({ ...day, dateString: '' });
+    } else {
+      setLocalSelectedDate(day.dateString);
+      onDayPress(day);
+    }
   };
 
   return (
@@ -27,13 +33,17 @@ export default function CalenderModal({
         onDayPress={handleDayPress}
         minDate={minDate}
         disableAllTouchEventsForDisabledDays={true}
-        markedDates={{
-          [localSelectedDate]: {
-            selected: true,
-            disableTouchEvent: true,
-            selectedColor: "orange",
-          },
-        }}
+        markedDates={
+          localSelectedDate
+            ? {
+                [localSelectedDate]: {
+                  selected: true,
+                  disableTouchEvent: false,
+                  selectedColor: "orange",
+                },
+              }
+            : {}
+        }
       />
     </View>
   );

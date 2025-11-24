@@ -11,7 +11,7 @@ import { RetirementDateContext } from "../../src/components/RetirementDateProvid
 import { DateData } from "react-native-calendars";
 
 export default function HomeScreen() {
-  const [remainingWeekday, setRemainingWeekdays] = useState<number | null>(
+  const [remainingWeekday, setRemainingWeekday] = useState<number | null>(
     null
   );
   const { retirementDate, setRetirementDate } = useContext(
@@ -23,7 +23,11 @@ export default function HomeScreen() {
   const today = now.format("YYYY-MM-DD");
   const handleOnDayPress = (day: DateData) => {
     setRetirementDate(day.dateString);
-    AsyncStorage.setItem("retirementDate", day.dateString);
+    if (day.dateString) {
+      AsyncStorage.setItem("retirementDate", day.dateString);
+    } else {
+      AsyncStorage.removeItem("retirementDate");
+    }
   };
   const handleOpenCalender = () =>
     showModal(
@@ -55,7 +59,10 @@ export default function HomeScreen() {
   // 退職日から現在の日時と比較して残り何営業日か算出して設定する
   useEffect(() => {
     const calculateRemainingWeekdays = (): void => {
-      if (retirementDate === null) return;
+      if (!retirementDate) {
+        setRemainingWeekday(null);
+        return;
+      }
       let currentDate: dayjs.Dayjs = dayjs();
       const endDate: dayjs.Dayjs = dayjs(retirementDate);
       let count: number = 0;
@@ -65,14 +72,14 @@ export default function HomeScreen() {
         }
         currentDate = currentDate.add(1, "day");
       }
-      setRemainingWeekdays(count);
+      setRemainingWeekday(count);
     };
     calculateRemainingWeekdays();
   }, [retirementDate]);
 
   // 0日になったらretirementDateにredirectする
   useEffect(() => {
-    if (retirementDate !== null && remainingWeekday === 0) {
+    if (retirementDate && remainingWeekday === 0) {
       router.push("/retirement-day");
     }
   }, [remainingWeekday, retirementDate]);
