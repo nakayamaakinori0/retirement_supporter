@@ -9,16 +9,60 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import dayjs from '../libs/day';
+import { useModal } from '../hooks/useModal';
+import CalenderModal from '../components/CalenderModal';
+import { DateData } from 'react-native-calendars';
 
 export const FormRetirementLetterScreen = () => {
   const [formType, setFormType] = useState<'願' | '届'>('願');
-  const [submissionDate, setSubmissionDate] = useState('2025年01月23日');
+  const [submissionDate, setSubmissionDate] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [employerName, setEmployerName] = useState('');
   const [departmentName, setDepartmentName] = useState('');
   const [employeeName, setEmployeeName] = useState('');
-  const [retirementDate, setRetirementDate] = useState('2025年02月23日');
+  const [retirementDate, setRetirementDate] = useState('');
   const router = useRouter();
+  const { showModal } = useModal();
+  const today = dayjs().format('YYYY-MM-DD');
+
+  // 提出日のカレンダーモーダルハンドラー
+  const handleSubmissionDatePress = (day: DateData) => {
+    setSubmissionDate(day.dateString);
+  };
+
+  const handleOpenSubmissionDateCalendar = () =>
+    showModal(
+      () => (
+        <CalenderModal
+          onDayPress={handleSubmissionDatePress}
+          selectedDate={submissionDate}
+          minDate={today}
+        />
+      ),
+      {},
+      'upper',
+      'upper'
+    );
+
+  // 退職予定日のカレンダーモーダルハンドラー
+  const handleRetirementDatePress = (day: DateData) => {
+    setRetirementDate(day.dateString);
+  };
+
+  const handleOpenRetirementDateCalendar = () =>
+    showModal(
+      () => (
+        <CalenderModal
+          onDayPress={handleRetirementDatePress}
+          selectedDate={retirementDate}
+          minDate={today}
+        />
+      ),
+      {},
+      'upper',
+      'upper'
+    );
 
   const handleConfirm = () => {
     if (!companyName || !employeeName) {
@@ -29,12 +73,12 @@ export const FormRetirementLetterScreen = () => {
       pathname: '/form-retirement-letter/confirm',
       params: {
         formType,
-        submissionDate,
+        submissionDate: dayjs(submissionDate).format('YYYY年MM月DD日'),
         companyName,
         employerName,
         departmentName,
         employeeName,
-        retirementDate,
+        retirementDate: dayjs(retirementDate).format('YYYY年MM月DD日'),
       },
     });
   }
@@ -68,13 +112,14 @@ export const FormRetirementLetterScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <Text> 提出日 </Text>
-        <TextInput
-          style={styles.input}
-          value={submissionDate}
-          onChangeText={setSubmissionDate}
-          placeholder="株式会社〇〇 御中"
-        />
+        <Text style={styles.label}>提出日</Text>
+        <TouchableOpacity
+          style={styles.dateInput}
+          onPress={handleOpenSubmissionDateCalendar}>
+          <Text style={styles.dateText}>
+            {submissionDate ? dayjs(submissionDate).format('YYYY年MM月DD日') : ''}
+          </Text>
+        </TouchableOpacity>
 
         <Text style={styles.label}>会社名 *</Text>
         <TextInput
@@ -101,20 +146,13 @@ export const FormRetirementLetterScreen = () => {
         />
 
         <Text style={styles.label}>退職予定日</Text>
-        <TextInput
-          style={styles.input}
-          value={retirementDate}
-          onChangeText={setRetirementDate}
-          placeholder="2025年01月31日"
-        />
-
-        <Text style={styles.label}>提出日</Text>
-        <TextInput
-          style={styles.input}
-          value={submissionDate}
-          onChangeText={setSubmissionDate}
-          placeholder="2025年01月01日"
-        />
+        <TouchableOpacity
+          style={styles.dateInput}
+          onPress={handleOpenRetirementDateCalendar}>
+          <Text style={styles.dateText}>
+            {retirementDate ? dayjs(retirementDate).format('YYYY年MM月DD日') : ''}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.generateButton} onPress={handleConfirm}>
           <Text style={styles.generateButtonText}>確認</Text>
@@ -177,6 +215,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
     backgroundColor: '#fff',
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#333',
   },
   generateButton: {
     backgroundColor: '#2E7D32',
