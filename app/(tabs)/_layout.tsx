@@ -32,13 +32,6 @@ export default function TabLayout() {
           headerTitle: "ホーム",
         }}
       />
-      <Tabs.Screen
-        name="font-styles"
-        options={{
-          title: "フォント",
-          headerTitle: "フォント一覧",
-        }}
-      />
     </Tabs>
   );
 }
