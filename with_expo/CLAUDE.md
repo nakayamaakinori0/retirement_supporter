@@ -1,24 +1,27 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Expo 版（v2）のガイド。リポジトリ全体の開発フローは [../CLAUDE.md](../CLAUDE.md) を参照。
 
 ## Development Commands
 
 ### 開発サーバーの起動
+
 ```bash
 npm start            # Expo開発サーバーを起動
-npm run ios         # iOSシミュレーターで起動
-npm run android     # Androidエミュレーターで起動
-npm run web         # ウェブブラウザで起動
+npm run ios          # iOSシミュレーターで起動
+npm run android      # Androidエミュレーターで起動
+npm run web          # ウェブブラウザで起動
 ```
 
 ### テストとリント
+
 ```bash
-npm test            # Jestテストを実行
-npm run lint        # ESLintでコードをチェック
+npm test             # Jestテストを実行
+npm run lint         # ESLintでコードをチェック
 ```
 
 ### 単一テストの実行
+
 ```bash
 npm test -- --testPathPattern="ファイル名"
 npm test -- --testNamePattern="テスト名"
@@ -26,62 +29,82 @@ npm test -- --testNamePattern="テスト名"
 
 ## Architecture Overview
 
-### プロジェクト構造
-このアプリケーションは、退職を決意した人をサポートするReact Native/Expoアプリです。Expo Routerによるファイルベースルーティングを採用しています。
+退職を決意した人をサポートする React Native / Expo アプリ。Expo Router によるファイルベースルーティングを採用。
 
-### 主要な技術スタック
-- **フレームワーク**: React Native + Expo (SDK 53)
-- **ルーティング**: Expo Router v5 (ファイルベースルーティング)
-- **状態管理**: Context API (CalenderProvider, ModalProvider)
-- **永続化ストレージ**: AsyncStorage
-- **タイプチェック**: TypeScript (strict mode有効)
+### 技術スタック
+
+- **フレームワーク**: React Native 0.79 + Expo (SDK 53)
+- **ルーティング**: Expo Router v5
+- **状態管理**: Context API (`RetirementDateProvider`, `ModalProvider`)
+- **永続化**: AsyncStorage
+- **日付処理**: dayjs（`src/libs/day.ts` でプラグイン設定済みのインスタンスを default export）
+- **PDF生成**: expo-print（HTML → PDF）+ expo-sharing（共有）
+- **型**: TypeScript strict mode
 - **スタイリング**: React Native StyleSheet
-- **テスト**: Jest + React Native Testing Library
+- **テスト**: Jest (jest-expo) + React Native Testing Library
 
-### ディレクトリ構造とアーキテクチャ
+### ディレクトリ構造
+
 ```
-/app/                   # Expo Routerのルーティングファイル
-  ├── _layout.tsx      # ルートレイアウト（NavigationContainer）
-  ├── (tabs)/          # タブナビゲーション
-  │   ├── _layout.tsx  # タブレイアウト定義
-  │   ├── index.tsx    # ホーム画面ルート
-  │   └── ...          # その他のタブ画面
-  └── ResignationLetter.tsx  # 退職願/退職届作成画面
+/app/                             # Expo Router のルーティングファイル
+  ├── _layout.tsx                 # ルートレイアウト（Provider 群）
+  ├── retirement-day.tsx          # 退職当日のお祝い画面
+  ├── form-retirement-letter-confirm.tsx  # 退職願・退職届の確認/PDF生成画面
+  └── (tabs)/
+      ├── _layout.tsx             # タブレイアウト定義
+      ├── index.tsx               # ホーム（残り営業日カウントダウン）
+      ├── form-retirement-letter.tsx  # 退職願・退職届の入力フォーム
+      └── font-styles.tsx         # フォント一覧
 
 /src/
-  ├── components/      # 再利用可能なUIコンポーネント
-  │   ├── CalenderModal.tsx    # 退職日選択モーダル
-  │   ├── CatCarousel.tsx      # 猫キャラクターカルーセル
-  │   └── ...
-  ├── screens/         # 画面コンポーネント（ビジネスロジック含む）
-  │   ├── HomeScreen.tsx       # ホーム画面（営業日カウントダウン）
-  │   ├── ResignationLetterScreen.tsx  # 退職願作成
-  │   └── ...
-  ├── hooks/           # カスタムフック
-  │   └── useAsync.tsx         # 非同期状態管理
-  └── libs/            # ユーティリティ関数
-      └── utils.ts             # 営業日計算など
+  ├── components/                 # UIコンポーネント + Context Provider
+  │   ├── RetirementDateProvider.tsx  # 退職日の Context
+  │   ├── ModalProvider.tsx           # モーダル状態の Context
+  │   ├── CalenderModal.tsx           # 退職日選択モーダル
+  │   ├── Partner.tsx                 # パートナー猫
+  │   ├── Quote.tsx / Balloon.tsx / HamburgerButton.tsx
+  │   └── __tests__/                  # コンポーネントテスト（コロケーション）
+  ├── constants/
+  │   ├── colors.ts               # 配色定義（Colors）
+  │   └── images.ts               # 画像アセットの参照
+  ├── hooks/
+  │   └── useModal.ts
+  └── libs/
+      ├── day.ts                  # dayjs 設定（locale ja / TZ Asia/Tokyo / 各プラグイン）
+      ├── generateRetirementLetterPDF.ts  # PDF用HTMLの生成
+      └── isOuterAreaClick.ts
 
-/assets/              # 画像リソース（猫の画像など）
+/assets/                          # 画像リソース（cats/ に猫画像）
+/__tests__/                       # アプリ全体のテスト
 ```
 
-### 重要なコンテキストプロバイダー
-1. **CalenderProvider**: 退職日の管理とカレンダーモーダルの制御
-2. **ModalProvider**: 全体的なモーダル状態の管理
-
 ### ルーティング構造
-- タブナビゲーション: ホーム、退職願作成、フォント一覧の3つのタブ
-- スタックナビゲーション: 退職願/退職届作成画面への遷移
 
-### 営業日計算ロジック
-`src/libs/utils.ts`の`calculateBusinessDays`関数が、土日祝日を除いた営業日を計算します。日本の祝日対応が必要な場合は、この関数の拡張が必要です。
+- タブ: `退職願・退職届` / `ホーム` / `フォント`（`app/(tabs)/_layout.tsx` の定義順）
+- スタック: フォーム → `form-retirement-letter-confirm`（確認・PDF生成）、残り0営業日で `retirement-day` へ遷移
 
-### テスト戦略
-- コンポーネントテスト: `__tests__/components/`
-- スクリーンテスト: `__tests__/screens/`
-- モックファイル: `__mocks__/`（AsyncStorageなど）
+### Context Provider
+
+1. **RetirementDateProvider** — 退職日（`YYYY-MM-DD` の文字列）を保持。永続化は AsyncStorage のキー `retirementDate` で、Provider ではなく各画面が読み書きしている
+2. **ModalProvider** — `useModal()` の `showModal(render, props, ...)` でモーダルを表示
+
+### 営業日計算
+
+`app/(tabs)/index.tsx` の `calculateRemainingWeekdays` が、今日から退職日までの土日を除いた日数を数える。**祝日は未対応**。共通ロジックとして切り出されていない点に注意。
+
+### 退職願・退職届の生成フロー
+
+1. `(tabs)/form-retirement-letter.tsx` — 願/届の選択、会社名・氏名などを入力
+2. `form-retirement-letter-confirm.tsx` — 縦書きレイアウトでプレビュー
+3. `src/libs/generateRetirementLetterPDF.ts` の `generateRetirementLetterHTML()` で HTML を生成
+4. `expo-print` で PDF 化し、`expo-sharing` で共有
+
+`taishokutodoke_yoko_template.pdf` は参考テンプレート（アプリからは未使用）。
 
 ### 注意事項
-- PDF生成機能は現在モック実装のため、実装時は`react-native-html-to-pdf`の設定が必要
-- 猫の画像アセットは`assets/images/cats/`に配置
-- TypeScriptのstrict modeが有効なため、型定義を厳密に行うこと
+
+- 配色は `src/constants/colors.ts` の `Colors` を使う。色をハードコードしない
+  - 旧配色（緑系 `#F5FCF4` / `#2E7D32`）から Notion 風モノトーンへ移行中。`(tabs)/_layout.tsx`、`retirement-day.tsx`、`font-styles.tsx`、`src/components/` 配下は未移行
+- パスエイリアス `@/*` がリポジトリルート（`with_expo/`）を指す。ただし現状は相対パス import が多く混在している
+- `package.json` に `react-native-html-to-pdf` / `react-native-pdf` / `react-native-share` が残っているが、PDF 生成は expo-print に移行済みで未使用
+- TypeScript strict mode 有効
