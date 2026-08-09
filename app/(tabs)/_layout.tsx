@@ -32,6 +32,13 @@ export default function TabLayout() {
           headerTitle: "ホーム",
         }}
       />
+      <Tabs.Screen
+        name="todo-list"
+        options={{
+          title: "やること",
+          headerTitle: "退職までにやること",
+        }}
+      />
     </Tabs>
   );
 }
