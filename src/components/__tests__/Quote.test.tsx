@@ -1,28 +1,47 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
-import Quote from '../Quote';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Quote from '../Quote';
+import dayjs from '../../libs/day';
 
-// Mock fetch
 global.fetch = jest.fn();
+
+const getItemMock = AsyncStorage.getItem as jest.Mock;
+const setItemMock = AsyncStorage.setItem as jest.Mock;
+
+// コンポーネントは dayjs のローカル時刻で日付を比較するため、
+// テスト側も UTC ではなく dayjs で日付を組み立てる
+const today = dayjs().format('YYYY-MM-DD');
+const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+
+/**
+ * AsyncStorage.getItem の戻り値をキー単位で決める。
+ * mockResolvedValueOnce は呼び出し順に依存し、消費されなかった値が
+ * 次のテストへ漏れるため使わない。
+ */
+const mockStorage = (store: Record<string, string | null>) => {
+  getItemMock.mockImplementation((key: string) =>
+    Promise.resolve(store[key] ?? null),
+  );
+};
 
 describe('Quote', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    // clearAllMocks は実装を残すので、明示的に reset して状態を持ち越さない
+    getItemMock.mockReset();
+    setItemMock.mockReset();
+    setItemMock.mockResolvedValue(undefined);
+
+    (fetch as jest.Mock).mockReset();
     (fetch as jest.Mock).mockResolvedValue({
-      json: jest.fn().mockResolvedValue([
-        {
-          auther: 'テスト著者',
-          meigen: 'テスト名言',
-        },
-      ]),
+      json: jest
+        .fn()
+        .mockResolvedValue([{ auther: 'テスト著者', meigen: 'テスト名言' }]),
     });
   });
 
-  it('should fetch and display a quote from API', async () => {
-    (AsyncStorage.getItem as jest.Mock)
-      .mockResolvedValueOnce(null) // quoteGotDate
-      .mockResolvedValueOnce(null); // quote
+  it('キャッシュがなければAPIから取得して表示する', async () => {
+    mockStorage({});
 
     const { getByText } = render(<Quote />);
 
@@ -32,38 +51,29 @@ describe('Quote', () => {
     });
   });
 
-  it('should use cached quote if available and date matches', async () => {
-    const today = new Date().toISOString().split('T')[0];
-    (AsyncStorage.getItem as jest.Mock)
-      .mockResolvedValueOnce(today) // quoteGotDate
-      .mockResolvedValueOnce(JSON.stringify({
+  it('当日取得済みのキャッシュがあればAPIを叩かずキャッシュを表示する', async () => {
+    mockStorage({
+      quoteGotDate: today,
+      quote: JSON.stringify({
         auther: 'キャッシュ著者',
         meigen: 'キャッシュ名言',
-      })); // quote
+      }),
+    });
 
     const { getByText } = render(<Quote />);
 
-    // Note: Quote component has fallback behavior in test environment
     await waitFor(() => {
-      // Should display either cached quote or fallback to API quote
-      const hasQuoteText = getByText(/テスト名言|キャッシュ名言/);
-      const hasAuthorText = getByText(/by (テスト著者|キャッシュ著者)/);
-      expect(hasQuoteText).toBeTruthy();
-      expect(hasAuthorText).toBeTruthy();
+      expect(getByText('キャッシュ名言')).toBeTruthy();
+      expect(getByText('by キャッシュ著者')).toBeTruthy();
     });
-
-    // Note: In test environment, the component may still fetch from API due to timing
-    // This is acceptable behavior as the component works correctly in production
+    expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('should fetch new quote if cached date is different', async () => {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    (AsyncStorage.getItem as jest.Mock)
-      .mockResolvedValueOnce(yesterday) // quoteGotDate
-      .mockResolvedValueOnce(JSON.stringify({
-        auther: '古い著者',
-        meigen: '古い名言',
-      })); // quote
+  it('キャッシュが前日以前ならAPIから取得し直す', async () => {
+    mockStorage({
+      quoteGotDate: yesterday,
+      quote: JSON.stringify({ auther: '古い著者', meigen: '古い名言' }),
+    });
 
     const { getByText } = render(<Quote />);
 
@@ -71,24 +81,25 @@ describe('Quote', () => {
       expect(getByText('テスト名言')).toBeTruthy();
       expect(getByText('by テスト著者')).toBeTruthy();
     });
-
-    // Should fetch from API
-    expect(fetch).toHaveBeenCalledWith('https://meigen.doodlenote.net/api/json.php?c=1&e=1');
+    expect(fetch).toHaveBeenCalledWith(
+      'https://meigen.doodlenote.net/api/json.php?c=1&e=1',
+    );
   });
 
-  it('should save quote and date to AsyncStorage when fetching new quote', async () => {
-    (AsyncStorage.getItem as jest.Mock)
-      .mockResolvedValueOnce(null) // quoteGotDate
-      .mockResolvedValueOnce(null); // quote
+  it('APIから取得した名言と取得日をAsyncStorageに保存する', async () => {
+    mockStorage({});
 
     render(<Quote />);
 
     await waitFor(() => {
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('quoteGotDate', expect.any(String));
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('quote', JSON.stringify({
-        auther: 'テスト著者',
-        meigen: 'テスト名言',
-      }));
+      expect(setItemMock).toHaveBeenCalledWith(
+        'quoteGotDate',
+        expect.any(String),
+      );
+      expect(setItemMock).toHaveBeenCalledWith(
+        'quote',
+        JSON.stringify({ auther: 'テスト著者', meigen: 'テスト名言' }),
+      );
     });
   });
 });

@@ -13,6 +13,9 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # 日本向けのアプリなので、ローカル環境と同じタイムゾーンで検証する
+    env:
+      TZ: Asia/Tokyo
     steps:
       - uses: actions/checkout@v4
 
