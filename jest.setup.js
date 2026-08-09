@@ -49,9 +49,6 @@ jest.mock('react-native-calendars', () => ({
 jest.mock('react-native-countdown-component', () => 'CountDown');
 jest.mock('react-native-swiper', () => 'Swiper');
 
-// Silence the warning: Animated: `useNativeDriver` is not supported
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-
 // Mock React Native components that may cause issues
 jest.mock('react-native-gesture-handler', () => ({
   PanGestureHandler: 'PanGestureHandler',

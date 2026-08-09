@@ -66,6 +66,8 @@ function Partner({ showEncourage }: { showEncourage: boolean }) {
     return partnerEncourageTexts[
       Math.floor(Math.random() * partnerEncourageTexts.length)
     ];
+    // 表示されるたびに文言を引き直すため、あえて isVisible を依存に含めている
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible]);
 
   return (

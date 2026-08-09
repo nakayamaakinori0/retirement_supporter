@@ -11,8 +11,9 @@ export type MainTabParamList = {
 };
 
 // Quote type
-export interface Quote {
-  author: string;
+// meigen.doodlenote.net の API レスポンスに合わせている（author ではなく auther）
+export interface QuoteType {
+  auther: string;
   meigen: string;
 }
 

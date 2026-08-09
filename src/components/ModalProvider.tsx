@@ -56,7 +56,7 @@ export function ModalProvider({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}): React.JSX.Element {
   const [modals, dispatch] = useReducer(reducer, initialValue);
 
   const showModal = useCallback(
@@ -122,7 +122,7 @@ export function Modal({
   children?: React.ReactNode;
   position?: 'upper' | 'center' | 'lower';
   from?: 'upper' | 'center' | 'lower';
-}): JSX.Element {
+}): React.JSX.Element {
   const viewRef = useRef<View>(null);
   const slideAnim = useRef(new Animated.Value(0)).current;
   

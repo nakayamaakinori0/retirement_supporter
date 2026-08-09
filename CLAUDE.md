@@ -27,14 +27,53 @@ SDD (Spec Driven Development)。**実装の前に必ず spec を書く。**
 
 4. **実装** — spec の受け入れ条件を満たすまで実装する。spec から外れる判断が必要になったら、コードではなく先に spec を更新する
 
-5. **ready** — テストと lint が通ったら `gh pr ready` で draft を外す
+5. **AIレビュー（提出前・最大5サイクル）** — PR を ready にする前に、AIレビューと修正を回す
 
-6. **レビュー通過後にマージ** — レビューを通過してからマージする。マージ時に spec の `Status` を `Implemented` にする
+   ```bash
+   /code-review          # 差分をレビュー
+   ```
+
+   1サイクル = レビュー → 指摘の修正 → 再レビュー。**最大5サイクル**。
+   5サイクル回しても指摘が収束しない場合は、そこで止めて人間のレビューに委ねる（サイクルを延長しない）。
+   各サイクルの修正はコミットに残す。
+
+6. **ready** — CI（typecheck / lint / test）が通ったら `gh pr ready` で draft を外す
+
+7. **レビュー通過後にマージ** — 人間のレビューを通過してからマージする。マージ時に spec の `Status` を `Implemented` にする
 
 ### 補足
 
 - typo 修正・依存更新・フォーマットのみの変更は spec 不要
 - ブランチは main から切る。main への直接コミットはしない
+
+## ドキュメント管理
+
+ドキュメントはすべてこのリポジトリで管理する（外部の Notion 等に置かない）。
+
+- `docs/spec/` — 機能ごとの spec
+- `CLAUDE.md` — 開発フローとアーキテクチャ
+- `README.md` — 概要とセットアップ
+
+**ドキュメントの変更もコードと同じく PR を通す。** main への直接コミットはしない。
+ドキュメントのみの変更は spec 不要で、`docs: <内容>` のコミットメッセージで PR を出す。
+
+## CI
+
+### ローカル（lefthook）
+
+`npm install` 時に `prepare` スクリプトが git hook を設置する。設定は [lefthook.yml](./lefthook.yml)。
+
+| フック | 内容 |
+| --- | --- |
+| pre-commit | `tsc --noEmit`（型チェック）+ 変更ファイルへの `eslint`（警告も許容しない） |
+| pre-push | `npm test`（ユニットテスト） |
+
+速い静的解析を commit 時、遅いテストを push 時に置いている。
+緊急時は `LEFTHOOK=0 git commit ...` で回避できるが、原則使わない。
+
+### GitHub Actions
+
+[.github/workflows/ci.yml](./.github/workflows/ci.yml) が PR と main への push で typecheck / lint / test を実行する。
 
 ## コミットメッセージ
 
@@ -55,7 +94,8 @@ npm run web          # ウェブブラウザで起動
 
 ```bash
 npm test             # Jestテストを実行
-npm run lint         # ESLintでコードをチェック
+npm run lint         # ESLintでコードをチェック（警告も許容しない）
+npm run typecheck    # tsc --noEmit で型チェック
 ```
 
 ### 単一テストの実行

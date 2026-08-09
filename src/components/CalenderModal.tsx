@@ -29,6 +29,7 @@ export default function CalenderModal({
   return (
     <View style={styles.calenderModal}>
       <Calendar
+        testID="calendar"
         style={styles.calender}
         onDayPress={handleDayPress}
         minDate={minDate}
