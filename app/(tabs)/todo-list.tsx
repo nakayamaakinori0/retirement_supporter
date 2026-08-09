@@ -49,16 +49,18 @@ export default function TodoListScreen() {
       // 読み込み前に操作すると、復元された状態で上書きされてしまう
       if (!isLoaded) return;
 
-      setCompletedIds(prev => {
-        const next = prev.includes(id)
-          ? prev.filter(completedId => completedId !== id)
-          : [...prev, id];
+      // 保存は更新関数の外で行う。更新関数は純粋に保ち、
+      // 保存に失敗しても未処理の rejection にならないようにする
+      const next = completedIds.includes(id)
+        ? completedIds.filter(completedId => completedId !== id)
+        : [...completedIds, id];
 
-        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        return next;
+      setCompletedIds(next);
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(error => {
+        console.error('やることリストの保存に失敗しました:', error);
       });
     },
-    [isLoaded],
+    [isLoaded, completedIds],
   );
 
   const handleToggleExpanded = useCallback((id: string) => {

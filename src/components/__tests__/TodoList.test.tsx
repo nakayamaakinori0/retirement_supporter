@@ -141,6 +141,26 @@ describe('TodoListScreen', () => {
     expect(setItemMock).not.toHaveBeenCalled();
   });
 
+  it('保存に失敗しても未処理のrejectionにならない', async () => {
+    setItemMock.mockRejectedValue(new Error('保存失敗'));
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    const { getByTestId } = await renderLoaded();
+
+    fireEvent.press(getByTestId(`checkbox-${firstItem.id}`));
+    await act(async () => {});
+
+    // 失敗してもUI上の完了状態は維持され、エラーはログに出る
+    expect(getByTestId('progress-count').props.children).toBe(
+      `1/${todoItems.length} 完了`,
+    );
+    expect(consoleError).toHaveBeenCalled();
+
+    consoleError.mockRestore();
+  });
+
   it('全項目を完了すると完了メッセージを表示する', async () => {
     getItemMock.mockResolvedValue(
       JSON.stringify(todoItems.map(item => item.id)),
