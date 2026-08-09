@@ -2,7 +2,6 @@
 
 - Issue: #<番号>
 - Status: Draft | Approved | Implemented
-- 対象: with_expo | with_vanilla
 
 ## 背景 / 目的
 
