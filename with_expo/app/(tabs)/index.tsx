@@ -9,6 +9,7 @@ import { useModal } from "../../src/hooks/useModal";
 import CalenderModal from "../../src/components/CalenderModal";
 import { RetirementDateContext } from "../../src/components/RetirementDateProvider";
 import { DateData } from "react-native-calendars";
+import { Colors } from "../../src/constants/colors";
 
 export default function HomeScreen() {
   const [remainingWeekday, setRemainingWeekday] = useState<number | null>(
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#F5FCF4",
+    backgroundColor: Colors.bg,
   },
   container: {
     marginTop: 100,
@@ -135,12 +136,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
+    color: Colors.primary,
   },
   remainingWeekDay: {
     marginTop: 20,
     fontSize: 100,
     lineHeight: 110,
-    color: "#000",
+    color: Colors.primary,
     fontWeight: "bold",
   },
   subTitleContainer: {
@@ -150,6 +152,7 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 25,
     lineHeight: 25,
+    color: Colors.primary,
   },
   quoteContainer: {
     width: "80%",

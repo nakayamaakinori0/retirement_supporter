@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { generateRetirementLetterHTML } from '../src/libs/generateRetirementLetterPDF';
+import { Colors } from '../src/constants/colors';
 
 export default function ConfirmScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const {
     formType = '届',
@@ -30,6 +33,7 @@ export default function ConfirmScreen() {
   };
 
   const handleGenerate = async () => {
+    setIsGenerating(true);
     try {
       // 外部テンプレートを使用してHTMLを生成
       const html = generateRetirementLetterHTML({
@@ -59,6 +63,8 @@ export default function ConfirmScreen() {
       }
     } catch (error) {
       console.error('PDF生成エラー:', error);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -115,11 +121,23 @@ export default function ConfirmScreen() {
 
       {/* ボタン */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={handleEdit}
+          disabled={isGenerating}
+        >
           <Text style={styles.editButtonText}>修正</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.generateButton} onPress={handleGenerate}>
-          <Text style={styles.generateButtonText}>生成</Text>
+        <TouchableOpacity
+          style={[styles.generateButton, isGenerating && styles.disabledButton]}
+          onPress={handleGenerate}
+          disabled={isGenerating}
+        >
+          {isGenerating ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.generateButtonText}>生成</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -129,18 +147,15 @@ export default function ConfirmScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCF4',
+    backgroundColor: Colors.bg,
   },
   previewContainer: {
     margin: 20,
     padding: 30,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: Colors.bg,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
     minHeight: 500,
   },
   titleContainer: {
@@ -152,6 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     letterSpacing: 8,
+    color: Colors.primary,
   },
   submissionDateContainer: {
     alignItems: 'flex-end',
@@ -159,6 +175,7 @@ const styles = StyleSheet.create({
   },
   submissionDate: {
     fontSize: 16,
+    color: Colors.primary,
   },
   recipientContainer: {
     marginBottom: 40,
@@ -166,6 +183,7 @@ const styles = StyleSheet.create({
   companyName: {
     fontSize: 16,
     marginBottom: 5,
+    color: Colors.primary,
   },
   employerNameContainer: {
     flexDirection: 'row',
@@ -173,13 +191,16 @@ const styles = StyleSheet.create({
   },
   employerLabel: {
     fontSize: 16,
+    color: Colors.primary,
   },
   employerName: {
     fontSize: 16,
     marginLeft: 8,
+    color: Colors.primary,
   },
   honorific: {
     fontSize: 16,
+    color: Colors.primary,
   },
   senderContainer: {
     alignItems: 'flex-end',
@@ -188,6 +209,7 @@ const styles = StyleSheet.create({
   departmentName: {
     fontSize: 16,
     marginBottom: 5,
+    color: Colors.primary,
   },
   employeeNameContainer: {
     flexDirection: 'row',
@@ -196,9 +218,11 @@ const styles = StyleSheet.create({
   employeeName: {
     fontSize: 16,
     marginRight: 5,
+    color: Colors.primary,
   },
   seal: {
     fontSize: 14,
+    color: Colors.primary,
   },
   bodyContainer: {
     marginBottom: 30,
@@ -209,10 +233,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginBottom: 15,
     marginRight: 40,
+    color: Colors.primary,
   },
   bodyText: {
     fontSize: 16,
     lineHeight: 28,
+    color: Colors.primary,
   },
   closingContainer: {
     alignItems: 'flex-end',
@@ -221,6 +247,7 @@ const styles = StyleSheet.create({
   },
   closing: {
     fontSize: 16,
+    color: Colors.primary,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -229,28 +256,32 @@ const styles = StyleSheet.create({
   },
   editButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bg,
     borderWidth: 1,
-    borderColor: '#2E7D32',
+    borderColor: Colors.border,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   editButtonText: {
-    color: '#2E7D32',
+    color: Colors.secondary,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   generateButton: {
     flex: 1,
-    backgroundColor: '#2E7D32',
+    backgroundColor: Colors.primary,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   generateButtonText: {
-    color: '#fff',
+    color: Colors.accent,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: Colors.secondary,
+    opacity: 0.5,
   },
 });

@@ -12,6 +12,7 @@ import dayjs from "../../src/libs/day";
 import { useModal } from "../../src/hooks/useModal";
 import CalenderModal from "../../src/components/CalenderModal";
 import { DateData } from "react-native-calendars";
+import { Colors } from "../../src/constants/colors";
 
 export default function FormRetirementLetterScreen() {
   const [formType, setFormType] = useState<"願" | "届">("願");
@@ -182,7 +183,7 @@ export default function FormRetirementLetterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5FCF4",
+    backgroundColor: Colors.bg,
   },
   formContainer: {
     padding: 20,
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#333",
+    color: Colors.primary,
   },
   typeSelector: {
     flexDirection: "row",
@@ -201,59 +202,61 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.border,
     alignItems: "center",
     marginHorizontal: 5,
     borderRadius: 8,
+    backgroundColor: Colors.bg,
   },
   activeType: {
-    backgroundColor: "#2E7D32",
-    borderColor: "#2E7D32",
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   typeText: {
     fontSize: 16,
-    color: "#666",
+    color: Colors.secondary,
   },
   activeTypeText: {
-    color: "#fff",
+    color: Colors.accent,
     fontWeight: "bold",
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 5,
-    color: "#333",
+    color: Colors.primary,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.bg,
+    color: Colors.primary,
   },
   dateInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: Colors.border,
     borderRadius: 8,
     padding: 12,
     marginBottom: 15,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.bg,
   },
   dateText: {
     fontSize: 16,
-    color: "#333",
+    color: Colors.primary,
   },
   generateButton: {
-    backgroundColor: "#2E7D32",
+    backgroundColor: Colors.primary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
   },
   generateButtonText: {
-    color: "#fff",
+    color: Colors.accent,
     fontSize: 18,
     fontWeight: "bold",
   },
