@@ -7,6 +7,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   FormRetirementLetter: undefined;
+  TodoList: undefined;
 };
 
 // Quote type
