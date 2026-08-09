@@ -1,0 +1,22 @@
+# https://lefthook.dev/configuration/
+#
+# pre-commit: 静的解析（速いもの）
+# pre-push:   ユニットテスト（遅いもの）
+#
+# 緊急時は LEFTHOOK=0 git commit ... で回避できるが、原則使わない。
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: typecheck
+      run: npx tsc --noEmit
+
+    - name: lint
+      glob: "*.{js,jsx,ts,tsx}"
+      run: npx eslint --max-warnings 0 {staged_files}
+      stage_fixed: true
+
+pre-push:
+  jobs:
+    - name: test
+      run: npm test -- --ci --silent
