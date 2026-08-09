@@ -1,7 +1,7 @@
 # フォント一覧タブを削除する
 
 - Issue: #17
-- Status: Draft
+- Status: Approved
 
 ## 背景 / 目的
 
@@ -52,10 +52,10 @@ Expo Router はファイルベースルーティングなので、画面ファ�
 
 ## 受け入れ条件
 
-- [ ] タブバーに「フォント」が表示されない
-- [ ] `app/(tabs)/font-styles.tsx` が存在しない
-- [ ] `FontStyles` への参照がリポジトリ内に残っていない
-- [ ] `npm run typecheck` / `npm run lint` / `npm test` が通る
+- [x] タブバーに「フォント」が表示されない
+- [x] `app/(tabs)/font-styles.tsx` が存在しない
+- [x] `FontStyles` への参照がリポジトリ内に残っていない
+- [x] `npm run typecheck` / `npm run lint` / `npm test` が通る
 
 ## テスト方針
 
