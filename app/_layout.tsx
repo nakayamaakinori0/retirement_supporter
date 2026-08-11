@@ -5,7 +5,8 @@ import { ModalProvider } from "../src/components/ModalProvider";
 import { initializeAds } from "../src/libs/initializeAds";
 
 export default function RootLayout() {
-  // 広告SDKの初期化とATTの同意取得はアプリ起動時に一度だけ行う
+  // 広告SDKの初期化とATTの同意取得はアプリ起動時に開始する。
+  // 完了前に生成が押されても showInterstitialAd 側で待ち合わせる
   useEffect(() => {
     initializeAds();
   }, []);

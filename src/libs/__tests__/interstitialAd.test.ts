@@ -3,7 +3,11 @@ import {
   InterstitialAd,
 } from 'react-native-google-mobile-ads';
 import { showInterstitialAd } from '../interstitialAd';
-import { AD_LOAD_TIMEOUT_MS } from '../../constants/ads';
+import { resetAdsInitializationForTest } from '../initializeAds';
+import {
+  AD_DISPLAY_TIMEOUT_MS,
+  AD_LOAD_TIMEOUT_MS,
+} from '../../constants/ads';
 
 const createForAdRequestMock = InterstitialAd.createForAdRequest as jest.Mock;
 
@@ -35,14 +39,59 @@ const createFakeAd = () => {
   return { ad, emit, unsubscribed };
 };
 
+/**
+ * showInterstitialAd はSDKの初期化を await してから広告を要求するため、
+ * タイマーを進める前にその分のマイクロタスクを流す必要がある
+ */
+const flushInit = async () => {
+  for (let i = 0; i < 5; i += 1) {
+    await Promise.resolve();
+  }
+};
+
 describe('showInterstitialAd', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     createForAdRequestMock.mockReset();
+    resetAdsInitializationForTest();
   });
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('広告が閉じられないまま固まっても最終的には必ず解決する', async () => {
+    const { ad, emit } = createFakeAd();
+    // 読み込みは成功して表示されたが、CLOSED も ERROR も来ない状況
+    ad.load.mockImplementation(() => emit(AdEventType.LOADED));
+    createForAdRequestMock.mockReturnValue(ad);
+
+    const promise = showInterstitialAd();
+    await flushInit();
+
+    jest.advanceTimersByTime(AD_DISPLAY_TIMEOUT_MS);
+
+    // ここで解決しないと、PDFが永久に生成されない
+    await expect(promise).resolves.toBe(true);
+  });
+
+  it('SDKの初期化が終わってから広告を要求する', async () => {
+    const { ad, emit } = createFakeAd();
+    ad.load.mockImplementation(() => {
+      emit(AdEventType.LOADED);
+      emit(AdEventType.CLOSED);
+    });
+    createForAdRequestMock.mockReturnValue(ad);
+
+    const promise = showInterstitialAd();
+
+    // 初期化の解決前は広告を要求していない
+    expect(createForAdRequestMock).not.toHaveBeenCalled();
+
+    await flushInit();
+    await promise;
+
+    expect(createForAdRequestMock).toHaveBeenCalledTimes(1);
   });
 
   it('広告を読み込めたら表示し、閉じられたら true を返す', async () => {
@@ -74,6 +123,7 @@ describe('showInterstitialAd', () => {
     createForAdRequestMock.mockReturnValue(ad);
 
     const promise = showInterstitialAd();
+    await flushInit();
     jest.advanceTimersByTime(AD_LOAD_TIMEOUT_MS);
 
     await expect(promise).resolves.toBe(false);
@@ -85,6 +135,7 @@ describe('showInterstitialAd', () => {
     createForAdRequestMock.mockReturnValue(ad);
 
     const promise = showInterstitialAd();
+    await flushInit();
     jest.advanceTimersByTime(AD_LOAD_TIMEOUT_MS);
     await expect(promise).resolves.toBe(false);
 
@@ -103,6 +154,7 @@ describe('showInterstitialAd', () => {
     promise.then(() => {
       settled = true;
     });
+    await flushInit();
 
     // 読み込みのタイムアウトを大きく超えて広告が表示され続けている
     jest.advanceTimersByTime(AD_LOAD_TIMEOUT_MS * 3);

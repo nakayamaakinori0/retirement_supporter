@@ -1,7 +1,7 @@
 # 退職届（願）生成時のインタースティシャル広告
 
 - Issue: #22
-- Status: Draft
+- Status: Approved
 
 ## 背景 / 目的
 
@@ -40,12 +40,13 @@
 
 これらはアプリのバイナリに埋め込まれる公開情報であり、秘匿する必要はない。リポジトリにそのまま置く。
 
-### 未確定
+### bundle identifier
 
-- `ios.bundleIdentifier` — App Store Connect 上の実際の値。**ビルド前に必須**。
-  v1 の Xcode プロジェクトには React Native テンプレートの初期値
-  `org.reactjs.native.example.retirementSupporter` が入っていたが、
-  ストア登録時に変更された可能性があるため、App Store Connect の値を正とする。
+`org.reactjs.native.example.retirementSupporter`
+
+React Native テンプレートの初期値のまま App Store に登録されている（確認済み）。
+bundle identifier は変更すると別アプリ扱いになり、既存ユーザーへの更新を配信できなくなるため、
+見た目が不格好でもこの値を使い続ける。
 
 ## 仕様
 
@@ -117,15 +118,20 @@ const interstitialAdUnitId = __DEV__
   広告の読み込み中もこのガードを効かせる
 - **広告を閉じた直後にPDF生成が失敗** — 広告とは独立した既存の問題（#19）。本 spec では扱わない
 - **同じ画面で複数回生成する** — 生成のたびに広告を読み込み直す（インタースティシャルは1回表示したら再利用できない）
+- **CLOSED も ERROR も来ないまま固まる** — SDKがイベントを落とす、広告表示中に
+  アプリが復元される等で起こりうる。放置するとPDFが永久に生成されず、生成ボタンも
+  無効のままになるため、表示フェーズにも十分に長い上限（120秒）を設けて必ず解決させる
+- **SDKの初期化前に生成が押される** — 初期化を待ってから広告を要求する。
+  待たないと初回の広告要求が必ず失敗し、初回生成の収益を取りこぼす
 
 ## 受け入れ条件
 
-- [ ] 「生成」タップ後、PDFが出る前に全画面広告が表示される
-- [ ] 広告を閉じるとPDFの生成・共有に進む
-- [ ] 広告の読み込みに失敗しても、PDFの生成・共有が完了する
-- [ ] 広告の読み込みが 5 秒を超えても、PDFの生成・共有が完了する
-- [ ] 開発ビルドではテスト広告が表示される（実広告を読み込まない）
-- [ ] `npm run typecheck` / `npm run lint` / `npm test` が通る
+- [x] 「生成」タップ後、PDFが出る前に全画面広告が表示される
+- [x] 広告を閉じるとPDFの生成・共有に進む
+- [x] 広告の読み込みに失敗しても、PDFの生成・共有が完了する
+- [x] 広告の読み込みが 5 秒を超えても、PDFの生成・共有が完了する
+- [x] 開発ビルドではテスト広告が表示される（実広告を読み込まない）
+- [x] `npm run typecheck` / `npm run lint` / `npm test` が通る
 
 ## テスト方針
 
@@ -149,5 +155,4 @@ const interstitialAdUnitId = __DEV__
 
 ## 未決事項
 
-- `ios.bundleIdentifier` の値（App Store Connect で確認待ち）
 - Android 対応の時期（AdMob のアプリ登録から必要）
