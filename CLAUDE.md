@@ -46,6 +46,15 @@ SDD (Spec Driven Development)。**実装の前に必ず spec を書く。**
 - typo 修正・依存更新・フォーマットのみの変更は spec 不要
 - ブランチは main から切る。main への直接コミットはしない
 
+## 実機確認
+
+広告SDKの導入により **Expo Go は使えない**。実機確認は EAS Build の開発ビルドで行う。
+手順は [docs/device-testing.md](./docs/device-testing.md)。
+
+```bash
+npx expo start --dev-client   # 開発ビルドを入れた実機に繋ぐ
+```
+
 ## ドキュメント管理
 
 ドキュメントはすべてこのリポジトリで管理する（外部の Notion 等に置かない）。
@@ -117,6 +126,8 @@ Expo Router によるファイルベースルーティングを採用。
 - **永続化**: AsyncStorage
 - **日付処理**: dayjs（`src/libs/day.ts` でプラグイン設定済みのインスタンスを default export）
 - **PDF生成**: expo-print（HTML → PDF）+ expo-sharing（共有）
+- **広告**: react-native-google-mobile-ads（AdMob インタースティシャル、iOSのみ）
+- **ビルド**: EAS Build（`eas.json`）。ネイティブ依存があるため Expo Go は使えない
 - **型**: TypeScript strict mode
 - **スタイリング**: React Native StyleSheet
 - **テスト**: Jest (jest-expo) + React Native Testing Library
@@ -132,7 +143,7 @@ Expo Router によるファイルベースルーティングを採用。
       ├── _layout.tsx             # タブレイアウト定義
       ├── index.tsx               # ホーム（残り営業日カウントダウン）
       ├── form-retirement-letter.tsx  # 退職願・退職届の入力フォーム
-      └── font-styles.tsx         # フォント一覧
+      └── todo-list.tsx           # 退職までにやることリスト
 
 /src/
   ├── components/                 # UIコンポーネント + Context Provider
@@ -140,16 +151,21 @@ Expo Router によるファイルベースルーティングを採用。
   │   ├── ModalProvider.tsx           # モーダル状態の Context
   │   ├── CalenderModal.tsx           # 退職日選択モーダル
   │   ├── Partner.tsx                 # パートナー猫
-  │   ├── Quote.tsx / Balloon.tsx / HamburgerButton.tsx
+  │   ├── TodoListItem.tsx            # やることリスト1項目（チェック+説明の開閉）
+  │   ├── Quote.tsx / Balloon.tsx
   │   └── __tests__/                  # コンポーネントテスト（コロケーション）
   ├── constants/
   │   ├── colors.ts               # 配色定義（Colors）
+  │   ├── todoItems.ts            # やることリストの項目とやり方の説明
+  │   ├── ads.ts                  # 広告ユニットIDとタイムアウト値
   │   └── images.ts               # 画像アセットの参照
   ├── hooks/
   │   └── useModal.ts
   └── libs/
       ├── day.ts                  # dayjs 設定（locale ja / TZ Asia/Tokyo / 各プラグイン）
       ├── generateRetirementLetterPDF.ts  # PDF用HTMLの生成
+      ├── interstitialAd.ts       # 広告の読み込みと表示（失敗しても必ず解決する）
+      ├── initializeAds.ts        # 広告SDKの初期化とATTの同意取得
       └── isOuterAreaClick.ts
 
 /assets/                          # 画像リソース（cats/ に猫画像）
@@ -158,7 +174,7 @@ Expo Router によるファイルベースルーティングを採用。
 
 ### ルーティング構造
 
-- タブ: `退職願・退職届` / `ホーム` / `フォント`（`app/(tabs)/_layout.tsx` の定義順）
+- タブ: `退職願・退職届` / `ホーム` / `やること`（`app/(tabs)/_layout.tsx` の定義順）
 - スタック: フォーム → `form-retirement-letter-confirm`（確認・PDF生成）、残り0営業日で `retirement-day` へ遷移
 
 ### Context Provider
@@ -174,15 +190,23 @@ Expo Router によるファイルベースルーティングを採用。
 
 1. `(tabs)/form-retirement-letter.tsx` — 願/届の選択、会社名・氏名などを入力
 2. `form-retirement-letter-confirm.tsx` — 縦書きレイアウトでプレビュー
-3. `src/libs/generateRetirementLetterPDF.ts` の `generateRetirementLetterHTML()` で HTML を生成
-4. `expo-print` で PDF 化し、`expo-sharing` で共有
+3. 「生成」タップ時にインタースティシャル広告を1回表示
+4. `src/libs/generateRetirementLetterPDF.ts` の `generateRetirementLetterHTML()` で HTML を生成
+5. `expo-print` で PDF 化し、`expo-sharing` で共有
+
+**広告はPDF生成を止めてはいけない。** 読み込み失敗・タイムアウト・SDK不在・
+表示時の例外はすべて握りつぶし、広告なしで生成を続行する（`src/libs/interstitialAd.ts`）。
+この不変条件はテストで固定してあるので、壊さないこと。
 
 `taishokutodoke_yoko_template.pdf` は参考テンプレート（アプリからは未使用）。
 
 ### 注意事項
 
 - 配色は `src/constants/colors.ts` の `Colors` を使う。色をハードコードしない
-  - 旧配色（緑系 `#F5FCF4` / `#2E7D32`）から Notion 風モノトーンへ移行中。`(tabs)/_layout.tsx`、`retirement-day.tsx`、`font-styles.tsx`、`src/components/` 配下は未移行
+  - 旧配色（緑系 `#F5FCF4` / `#2E7D32`）から Notion 風モノトーンへ移行中。`(tabs)/_layout.tsx`、`retirement-day.tsx`、`CalenderModal.tsx` ほか `src/components/` の一部は未移行
+- 広告IDは `__DEV__` でテストIDに分岐している。開発中に実広告を読み込むと
+  AdMob のポリシー違反（無効なトラフィック）でアカウント停止のリスクがある
 - パスエイリアス `@/*` がリポジトリルートを指す。ただし現状は相対パス import が多く混在している
 - `package.json` に `react-native-html-to-pdf` / `react-native-pdf` / `react-native-share` が残っているが、PDF 生成は expo-print に移行済みで未使用
+- `npm test` に `--forceExit` を付けている。テスト後にハンドルが残る問題（#20）の暫定対応
 - TypeScript strict mode 有効
