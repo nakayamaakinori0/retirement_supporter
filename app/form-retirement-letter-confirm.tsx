@@ -12,6 +12,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { generateRetirementLetterHTML } from '../src/libs/generateRetirementLetterPDF';
 import { Colors } from '../src/constants/colors';
+import { showInterstitialAd } from '../src/libs/interstitialAd';
 
 export default function ConfirmScreen() {
   const router = useRouter();
@@ -33,7 +34,19 @@ export default function ConfirmScreen() {
   };
 
   const handleGenerate = async () => {
+    if (isGenerating) return;
+
     setIsGenerating(true);
+
+    // 広告はPDF生成の前に1回だけ挟む。
+    // 広告が原因で生成が止まることは許容しないため、PDF生成の try とは
+    // 分けて、ここで出た例外は握りつぶす
+    try {
+      await showInterstitialAd();
+    } catch (error) {
+      console.error('広告の表示に失敗しました:', error);
+    }
+
     try {
       // 外部テンプレートを使用してHTMLを生成
       const html = generateRetirementLetterHTML({
