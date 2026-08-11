@@ -92,6 +92,29 @@ describe('showInterstitialAd', () => {
     expect(ad.show).not.toHaveBeenCalled();
   });
 
+  it('広告の表示中はタイムアウトで打ち切らない', async () => {
+    const { ad, emit } = createFakeAd();
+    // 読み込みは間に合ったが、利用者が広告をしばらく見ている状況
+    ad.load.mockImplementation(() => emit(AdEventType.LOADED));
+    createForAdRequestMock.mockReturnValue(ad);
+
+    const promise = showInterstitialAd();
+    let settled = false;
+    promise.then(() => {
+      settled = true;
+    });
+
+    // 読み込みのタイムアウトを大きく超えて広告が表示され続けている
+    jest.advanceTimersByTime(AD_LOAD_TIMEOUT_MS * 3);
+    await Promise.resolve();
+
+    // ここで解決してしまうと広告の裏でPDF生成が始まってしまう
+    expect(settled).toBe(false);
+
+    emit(AdEventType.CLOSED);
+    await expect(promise).resolves.toBe(true);
+  });
+
   it('show() が例外を投げても false を返して落ちない', async () => {
     const { ad, emit } = createFakeAd();
     ad.show.mockImplementation(() => {

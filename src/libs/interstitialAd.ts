@@ -25,13 +25,24 @@ export const showInterstitialAd = async (): Promise<boolean> => {
     const finish = (shown: boolean) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timeoutId);
+      clearLoadTimeout();
       unsubscribers.forEach(unsubscribe => unsubscribe());
       resolve(shown);
     };
 
-    // 読み込みが終わらないまま利用者を待たせないための保険
-    const timeoutId = setTimeout(() => finish(false), AD_LOAD_TIMEOUT_MS);
+    // 読み込みが終わらないまま利用者を待たせないための保険。
+    // これはあくまで「読み込み」の上限であり、表示中の広告を打ち切る用途では
+    // ないため、読み込みが完了した時点で必ず止める
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = setTimeout(
+      () => finish(false),
+      AD_LOAD_TIMEOUT_MS,
+    );
+
+    const clearLoadTimeout = () => {
+      if (timeoutId === undefined) return;
+      clearTimeout(timeoutId);
+      timeoutId = undefined;
+    };
 
     try {
       const interstitial = InterstitialAd.createForAdRequest(
@@ -42,6 +53,10 @@ export const showInterstitialAd = async (): Promise<boolean> => {
         interstitial.addAdEventListener(AdEventType.LOADED, () => {
           // タイムアウト後に読み込みが完了しても、もう表示しない
           if (settled) return;
+
+          // ここから先は表示フェーズ。閉じられるまで待つので読み込みの
+          // タイムアウトは止める（残しておくと広告の裏でPDF生成が始まる）
+          clearLoadTimeout();
 
           try {
             interstitial.show();

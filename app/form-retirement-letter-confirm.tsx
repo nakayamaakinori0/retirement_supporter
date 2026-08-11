@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,9 @@ export default function ConfirmScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [isGenerating, setIsGenerating] = useState(false);
+  // setState は同期的に反映されないため、連打の抑止には state ではなく
+  // ref を使う（同じレンダーのクロージャで複数回押されても弾ける）
+  const isGeneratingRef = useRef(false);
 
   const {
     formType = '届',
@@ -34,8 +37,9 @@ export default function ConfirmScreen() {
   };
 
   const handleGenerate = async () => {
-    if (isGenerating) return;
+    if (isGeneratingRef.current) return;
 
+    isGeneratingRef.current = true;
     setIsGenerating(true);
 
     // 広告はPDF生成の前に1回だけ挟む。
@@ -77,6 +81,7 @@ export default function ConfirmScreen() {
     } catch (error) {
       console.error('PDF生成エラー:', error);
     } finally {
+      isGeneratingRef.current = false;
       setIsGenerating(false);
     }
   };
