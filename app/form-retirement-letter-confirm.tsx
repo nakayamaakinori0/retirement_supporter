@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -12,11 +12,15 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { generateRetirementLetterHTML } from '../src/libs/generateRetirementLetterPDF';
 import { Colors } from '../src/constants/colors';
+import { showInterstitialAd } from '../src/libs/interstitialAd';
 
 export default function ConfirmScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [isGenerating, setIsGenerating] = useState(false);
+  // setState は同期的に反映されないため、連打の抑止には state ではなく
+  // ref を使う（同じレンダーのクロージャで複数回押されても弾ける）
+  const isGeneratingRef = useRef(false);
 
   const {
     formType = '届',
@@ -33,7 +37,20 @@ export default function ConfirmScreen() {
   };
 
   const handleGenerate = async () => {
+    if (isGeneratingRef.current) return;
+
+    isGeneratingRef.current = true;
     setIsGenerating(true);
+
+    // 広告はPDF生成の前に1回だけ挟む。
+    // 広告が原因で生成が止まることは許容しないため、PDF生成の try とは
+    // 分けて、ここで出た例外は握りつぶす
+    try {
+      await showInterstitialAd();
+    } catch (error) {
+      console.error('広告の表示に失敗しました:', error);
+    }
+
     try {
       // 外部テンプレートを使用してHTMLを生成
       const html = generateRetirementLetterHTML({
@@ -64,6 +81,7 @@ export default function ConfirmScreen() {
     } catch (error) {
       console.error('PDF生成エラー:', error);
     } finally {
+      isGeneratingRef.current = false;
       setIsGenerating(false);
     }
   };

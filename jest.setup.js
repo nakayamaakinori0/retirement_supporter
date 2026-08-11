@@ -56,3 +56,31 @@ jest.mock('react-native-gesture-handler', () => ({
   State: {},
   Directions: {},
 }));
+// 広告SDKはネイティブモジュールを含むためテスト環境では読み込めない。
+// 個別のテストで振る舞いを差し替えられるよう、最小限のモックを置く。
+jest.mock('react-native-google-mobile-ads', () => {
+  const AdEventType = {
+    LOADED: 'loaded',
+    CLOSED: 'closed',
+    ERROR: 'error',
+    OPENED: 'opened',
+  };
+
+  return {
+    __esModule: true,
+    AdEventType,
+    TestIds: { INTERSTITIAL: 'test-interstitial-id' },
+    InterstitialAd: {
+      createForAdRequest: jest.fn(),
+    },
+    default: jest.fn(() => ({
+      initialize: jest.fn(() => Promise.resolve()),
+    })),
+  };
+});
+
+jest.mock('expo-tracking-transparency', () => ({
+  requestTrackingPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' }),
+  ),
+}));
