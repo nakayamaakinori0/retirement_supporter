@@ -46,6 +46,15 @@ SDD (Spec Driven Development)。**実装の前に必ず spec を書く。**
 - typo 修正・依存更新・フォーマットのみの変更は spec 不要
 - ブランチは main から切る。main への直接コミットはしない
 
+## 実機確認
+
+広告SDKの導入により **Expo Go は使えない**。実機確認は EAS Build の開発ビルドで行う。
+手順は [docs/device-testing.md](./docs/device-testing.md)。
+
+```bash
+npx expo start --dev-client   # 開発ビルドを入れた実機に繋ぐ
+```
+
 ## ドキュメント管理
 
 ドキュメントはすべてこのリポジトリで管理する（外部の Notion 等に置かない）。
