@@ -1,7 +1,7 @@
 # 退職届（願）生成時のインタースティシャル広告
 
 - Issue: #22
-- Status: Approved
+- Status: Implemented
 
 ## 背景 / 目的
 
